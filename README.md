@@ -1,46 +1,76 @@
-FFmpeg README
-=============
+# FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
-FFmpeg is a collection of libraries and tools to process multimedia content
-such as audio, video, subtitles and related metadata.
+## How does it work?
 
-## Libraries
+* The patch is only nine lines of code, it allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
+* The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.
+* Everything else works just like unpatched ffmpeg.
+---
 
-* `libavcodec` provides implementation of a wider range of codecs.
-* `libavformat` implements streaming protocols, container formats and basic I/O access.
-* `libavutil` includes hashers, decompressors and miscellaneous utility functions.
-* `libavfilter` provides means to alter decoded audio and video through a directed graph of connected filters.
-* `libavdevice` provides an abstraction to access capture and playback devices.
-* `libswresample` implements audio mixing and resampling routines.
-* `libswscale` implements color conversion and scaling routines.
+## How to use:
 
-## Tools
+### These are all super important. 
 
-* [ffmpeg](https://ffmpeg.org/ffmpeg.html) is a command line toolbox to
-  manipulate, convert and stream multimedia content.
-* [ffplay](https://ffmpeg.org/ffplay.html) is a minimalistic multimedia player.
-* [ffprobe](https://ffmpeg.org/ffprobe.html) is a simple analysis tool to inspect
-  multimedia content.
-* Additional small tools such as `aviocat`, `ismindex` and `qt-faststart`.
+* map the SCTE-35 stream to the output file like  `-map 0` or maybe `-map 0:d` etc..
+* Set the SCTE-35 stream to copy like `-dcodec copy` or `-c copy` etc..
+* Use `-copyts` if you want your SCTE-35 and PTS to stay aligned 
+* Use `-muxpreload 0` and  `-muxdelay 0` to avoid the 1.4 second start bump
+---
 
-## Documentation
 
-The offline documentation is available in the **doc/** directory.
+## Install 
 
-The online documentation is available in the main [website](https://ffmpeg.org)
-and in the [wiki](https://trac.ffmpeg.org).
+1. Clone [this repo](https://github.com/superkabuki/FFmpeg)
+2. cd FFmpeg-superkabuki-patched
+3. Configure ffmpeg  ( _do this with whichever options you like_ )
+  * I used
+```js
+./configure --enable-shared --enable-libx264 --enable-libx265 --enable-nonfree --enable-gpl --extra-version=-superkabuki-patch
 
-### Examples
+```
+4. make all
+5.  sudo make install
+---
 
-Coding examples are available in the **doc/examples** directory.
+# Examples
 
-## License
 
-FFmpeg codebase is mainly LGPL-licensed with optional components licensed under
-GPL. Please refer to the LICENSE file for detailed information.
+## Example 1:  Re-encode video to H265 and copy over the SCTE-35
 
-## Contributing
 
-Patches should be submitted to the ffmpeg-devel mailing list using
-`git format-patch` or `git send-email`. Github pull requests should be
-avoided because they are not part of our review process and will be ignored.
+* original file
+![image](https://github.com/user-attachments/assets/b8816336-37a8-439e-87a1-d904f2815d7c)
+
+* ffmpeg command
+![image](https://github.com/user-attachments/assets/3c0190b0-479e-40ce-9c2e-9168919489a8)
+
+* new file
+![image](https://github.com/user-attachments/assets/2b76b386-814f-431b-a07a-a6eaa7001a12)
+
+---
+
+## Example 2:  Copy all streams, including SCTE-35, and cut the first 200 seconds.
+
+
+* original file
+![image](https://github.com/user-attachments/assets/30d88882-0814-4609-92fc-53ef29e77bae)
+
+* ffmpeg command
+ ![image](https://github.com/user-attachments/assets/21b1b49a-c9a2-4e8b-8322-2b4f5755a51e)
+
+* new file
+![image](https://github.com/user-attachments/assets/f2cf31c6-90a4-428c-97bd-4ca82823fc71)
+
+
+> Notice the start time and duration have both changed by ~200 seconds.
+
+* old
+```js
+ Duration: 00:04:56.30, start: 72667.595200, bitrate: 962 kb/s
+```
+* new
+```js
+  Duration: 00:01:37.75, start: 72866.141867, bitrate: 962 kb/s
+```
+---
+

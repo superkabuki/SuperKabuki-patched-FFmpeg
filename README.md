@@ -20,16 +20,17 @@
 
 ## Install 
 
-1. Clone [this repo](https://github.com/superkabuki/FFmpeg)
-2. cd FFmpeg-superkabuki-patched
-3. Configure ffmpeg  ( _do this with whichever options you like_ )
-  * I used
-```js
-./configure --enable-shared --enable-libx264 --enable-libx265 --enable-nonfree --enable-gpl --extra-version=-superkabuki-patch
 
-```
-4. make all
-5.  sudo make install
+1.    `git clone https://github.com/superkabuki/SuperKabuki-patched-FFmpeg.git`
+
+2.    `cd SuperKabuki-patched-FFmpeg`
+
+3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` ( you can customize this as needed )
+
+4.    `make all`
+
+5.    `sudo make install`
+
 ---
 
 # Examples

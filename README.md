@@ -1,5 +1,14 @@
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
+## ...why?
+If you work with SCTE-35 and you use ffmpeg, having __the SCTE-35 stream type 0x86 changed to bin data 0x06, makess life hard__. I have wrtten multiple tools just to deal with that single issue. <br>
+I never bothered to look at the ffmpeg code until last Thursday. After reading the mpegts.c file and the mpegtsenc.c files,<br>
+I realized that I could fix the 0x86 to 0x06 issue with just a few lines of code.<br> By few, I mean nine, and I think one or two lines may be redundant.
+<br> 
+__The ffmpeg code is super clean and super readable and very impressive.__
+<br>
+
+
 ## How does it work?
 
 * The patch is only nine lines of code, it allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
@@ -7,15 +16,9 @@
 * Everything else works just like unpatched ffmpeg.
 ---
 
-## How to use:
+## Issues
 
-### These are all super important. 
-
-* map the SCTE-35 stream to the output file like  `-map 0` or maybe `-map 0:d` etc..
-* Set the SCTE-35 stream to copy like `-dcodec copy` or `-c copy` etc..
-* Use `-copyts` if you want your SCTE-35 and PTS to stay aligned 
-* Use `-muxpreload 0` and  `-muxdelay 0` to avoid the 1.4 second start bump
----
+There are over 1.4 million lines of code in FFmpeg, I added 9. Don't come at me with a bunch of crazy issues. 
 
 
 ## Install 
@@ -33,6 +36,20 @@
 
 ---
 
+## How to use:
+
+### These are all super important. 
+
+* map the SCTE-35 stream to the output file like  `-map 0` or maybe `-map 0:d` etc..
+* Set the SCTE-35 stream to copy like `-dcodec copy` or `-c copy` etc..
+* Use `-copyts` if you want your SCTE-35 and PTS to stay aligned 
+* Use `-muxpreload 0` and  `-muxdelay 0` to avoid the 1.4 second start bump
+---
+* This a minimal example command.
+```
+ffmpeg -copyts -i input.video -map 0   -c:d copy -muxpreload 0 -muxdelay 0 output.video
+```
+```
 # Examples
 
 

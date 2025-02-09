@@ -47,9 +47,10 @@ There are over 1.4 million lines of code in FFmpeg, I added 9. Don't come at me 
 ---
 * This a minimal example command.
 ```
-ffmpeg -copyts -i input.video -map 0   -c:d copy -muxpreload 0 -muxdelay 0 output.video
+ffmpeg -copyts -i input.ts -map 0 -c:d copy -muxpreload 0 -muxdelay 0 output.ts
 ```
-```
+---
+
 # Examples
 
 

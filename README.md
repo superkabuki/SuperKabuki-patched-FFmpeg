@@ -24,9 +24,9 @@ There are over 1.4 million lines of code in FFmpeg, I added 9. Don't come at me 
 ## Install 
 
 
-1.    `git clone https://github.com/superkabuki/SuperKabuki-patched-FFmpeg.git`
+1.    `git clone https://github.com/superkabuki/FFmpeg_SCTE35.git`
 
-2.    `cd SuperKabuki-patched-FFmpeg`
+2.    `cd FFmpeg_SCTE35`
 
 3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` ( you can customize this as needed )
 

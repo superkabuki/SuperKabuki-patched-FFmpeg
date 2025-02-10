@@ -1,15 +1,12 @@
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
 ## ...why?
-If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 0x86 changed to bin data 0x06, makess life hard.<br> <br>
-I never bothered to look at the ffmpeg code until last Thursday.<br>
-After reading the mpegts.c file and the mpegtsenc.c files,<br>
-I realized that I could fix the 0x86 to 0x06 issue with just a few lines of code.<br> By few, I mean nine, and I think one or two lines may be redundant.<br>
-The ffmpeg code is super clean and super readable.
+If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 0x86 changed to bin data 0x06, makes your life hard.
+
 <br>
 
 
-## How does it work?
+## How does it do?
 
 * The patch is only nine lines of code, it allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.

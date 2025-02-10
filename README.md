@@ -16,10 +16,6 @@ The ffmpeg code is super clean and super readable.
 * Everything else works just like unpatched ffmpeg.
 ---
 
-## Issues
-
-There are over 1.4 million lines of code in FFmpeg, I added 9. Don't come at me with a bunch of crazy issues. 
-
 
 ## Install 
 
@@ -38,23 +34,19 @@ There are over 1.4 million lines of code in FFmpeg, I added 9. Don't come at me 
 
 ## How to use:
 
-### These are all super important. 
+Use it just like unpatched FFmpeg.
 
-* map the SCTE-35 stream to the output file like  `-map 0` or maybe `-map 0:d` etc..
-* Set the SCTE-35 stream to copy like `-dcodec copy` or `-c copy` etc..
-* Use `-copyts` if you want your SCTE-35 and PTS to stay aligned 
-* Use `-muxpreload 0` and  `-muxdelay 0` to avoid the 1.4 second start bump
----
-* This a minimal example command.
-```
-ffmpeg -copyts -i input.ts -map 0 -c:d copy -muxpreload 0 -muxdelay 0 output.ts
-```
 ---
 
 # Examples
 
+1.  Re-encode video to h.265, audio to aac, copy over the SCTE-35, and keep the timestamps.
 
-## Example 1:  Re-encode video to H265 and copy over the SCTE-35
+
+```smalltalk
+ffmpeg -copyts -i input.ts -map 0  -c:v h265 -c:a aac -c:d copy -muxpreload 0 -muxdelay 0 output.ts
+```
+
 
 
 * original file
@@ -68,8 +60,11 @@ ffmpeg -copyts -i input.ts -map 0 -c:d copy -muxpreload 0 -muxdelay 0 output.ts
 
 ---
 
-## Example 2:  Copy all streams, including SCTE-35, and cut the first 200 seconds.
+2. Copy all streams including SCTE-35, cut the first 200 seconds, and keep the timestamps.
 
+```smalltalk
+ffmpeg -copyts -ss 200 -i input.ts -map 0  -c copy -muxpreload 0 -muxdelay 0 output.ts
+```
 
 * original file
 ![image](https://github.com/user-attachments/assets/30d88882-0814-4609-92fc-53ef29e77bae)

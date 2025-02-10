@@ -6,7 +6,7 @@ If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 
 <br>
 
 
-## How does it do?
+## What does it do?
 
 * The patch is only nine lines of code, it allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.

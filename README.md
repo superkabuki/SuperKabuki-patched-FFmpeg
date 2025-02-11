@@ -1,3 +1,5 @@
+* repo clone count: 117
+
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
 ## ...why?

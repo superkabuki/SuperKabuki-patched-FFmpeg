@@ -18,6 +18,7 @@ If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 
 
 ## Install 
 
+* On OpenBSD use `gmake` instead of `make`.
 
 1.    `git clone https://github.com/superkabuki/FFmpeg_SCTE35.git`
 
@@ -25,9 +26,9 @@ If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 
 
 3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` ( you can customize this as needed )
 
-4.    `make all`
+4.    `make all` 
 
-5.    `sudo make install`
+5.    `sudo make install` 
 
 ---
 

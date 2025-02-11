@@ -16,11 +16,11 @@ __The SuperKabuki patch stops this from happening.__
 * Everything else works just like unpatched ffmpeg.
 ---
 
-## Why not add it to ffmpeg?
+## Why not add it to ffmpeg officially?
 
-I don't know those guys, but they don't seem to dig SCTE-35.  I have seen several quality SCTE-35 patches submitted since 2016, but never integrated. 
+* I don't know those guys, but SCTE-35 does not seem to be a priority for them, and that's okay.
 
- __This is both the point and the beauty of open source software, if something is not the way I want it, I can change it.__  
+* __This is both the point and the beauty of open source software, if something is not the way I want it, I can change it.__  
 
 
 ## Install 

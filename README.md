@@ -23,18 +23,24 @@ __The SuperKabuki patch stops this from happening.__
 
 ## Install 
 
-* On OpenBSD use `gmake` instead of `make`.
 
 1.    `git clone https://github.com/superkabuki/FFmpeg_SCTE35.git`
 
 2.    `cd FFmpeg_SCTE35`
 
-3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` ( you can customize this as needed )
+3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` 
+ 
+    a.  you can customize configure as needed. 
 
 4.    `make all` 
 
-5.    `sudo make install` 
+    b. On OpenBSD use `gmake` instead of `make`.
 
+6.    `sudo make install` 
+
+
+
+ 
 ---
 
 ## How to use:

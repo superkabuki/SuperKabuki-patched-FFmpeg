@@ -1,8 +1,12 @@
-![image](https://github.com/user-attachments/assets/f0569a59-3f33-44a3-92df-0052d4dd018b)
+* unique clone count since Saturday: 152
 
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
+![image](https://github.com/user-attachments/assets/f0569a59-3f33-44a3-92df-0052d4dd018b)
+
+
 ## ...why?
+
 If you work with SCTE-35 and you use ffmpeg,<br> having the SCTE-35 stream type 0x86 changed to bin data 0x06, makes your life hard.
 
 <br>

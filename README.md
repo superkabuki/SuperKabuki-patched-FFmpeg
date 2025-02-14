@@ -1,16 +1,11 @@
 * unique clone count since Saturday: 171
 
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
-![image](https://github.com/user-attachments/assets/3af67c6d-4029-4efc-9d7d-36d87aa21b10)
 
-## ...why?
-Becuse ffmpeg changing SCTE-35 streams ( 0x86 ) to Bin Data streams (0x06 ) really sucks if you work with SCTE-35 and love ffmpeg.
-<br>
-## What does it do?
+##  __The SuperKabuki patch stops this from happening.__
 
-__The SuperKabuki patch stops this from happening.__
+![412188557-af4e4bba-3612-4709-9660-48e485b2df9e](https://github.com/user-attachments/assets/a0f8ab8a-2e0d-4229-b867-a093bdf4f0c4)
 
-![image](https://github.com/user-attachments/assets/af4e4bba-3612-4709-9660-48e485b2df9e)
 
 * The patch  allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.
@@ -18,9 +13,14 @@ __The SuperKabuki patch stops this from happening.__
 ---
 
 ## Why not add it to ffmpeg officially?
+<br>
+ I don't know the ffmpeg guys, and SCTE-35 does not seem to be a priority for them.<br>
 
-* I don't know the ffmpeg guys, but SCTE-35 does not seem to be a priority for them, and that's okay.  __This is both the point and the beauty of open source software, if something is not the way I want it, I can change it.__  
+The point and the beauty of open source software is that if something is not the way I want it, I can change it. 
 
+<br>
+
+___
 
 ## Install 
 

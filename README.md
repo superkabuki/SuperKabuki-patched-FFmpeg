@@ -54,7 +54,7 @@ Use it just like unpatched FFmpeg.
 
 # Examples
 
-1.  Re-encode video to h.265, audio to aac, copy over the SCTE-35, and keep the timestamps.
+### 1.  Re-encode video to h.265, audio to aac, copy over the SCTE-35, and keep the timestamps.
 
 
 ```smalltalk
@@ -74,7 +74,7 @@ ffmpeg -copyts -i input.ts -map 0  -c:v h265 -c:a aac -c:d copy -muxpreload 0 -m
 
 ---
 
-2. Copy all streams including SCTE-35, cut the first 200 seconds, and keep the timestamps.
+### 2. Copy all streams including SCTE-35, cut the first 200 seconds, and keep the timestamps.
 
 ```smalltalk
 ffmpeg -copyts -ss 200 -i input.ts -map 0  -c copy -muxpreload 0 -muxdelay 0 output.ts

@@ -2,25 +2,21 @@
 
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
-##  __The SuperKabuki patch stops this from happening.__
+## Ever get this message when transcoding a SCTE-35 stream?
 
 ![412188557-af4e4bba-3612-4709-9660-48e485b2df9e](https://github.com/user-attachments/assets/a0f8ab8a-2e0d-4229-b867-a093bdf4f0c4)
+
+##  __The SuperKabuki patch stops that from happening.__
+
 
 
 * The patch  allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.
 * Everything else works just like unpatched ffmpeg.
+
+
 ---
 
-## Why not add it to ffmpeg officially?
-<br>
- I don't know the ffmpeg guys, and SCTE-35 does not seem to be a priority for them.<br>
-
-The point and the beauty of open source software is that if something is not the way I want it, I can change it. 
-
-<br>
-
-___
 
 ## Install 
 
@@ -31,11 +27,15 @@ ___
 
 3.    `./configure --enable-shared --extra-version=-SuperKabuki-patch` 
  
-    a.  you can customize configure as needed. 
+      you can customize configure as needed. <br>
+      There are a lot of ffmpeg configure options available. <br>
+      __The superkabuki patch doesn't require any special configure options.__
+      
+  
 
-4.    `make all` 
+5.    `make all` 
 
-    b. On OpenBSD use `gmake` instead of `make`.
+    a. On OpenBSD use `gmake` instead of `make`.
 
 6.    `sudo make install` 
 

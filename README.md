@@ -18,7 +18,9 @@
 ---
 
 
-## Install 
+## Install  
+
+in five easy steps.
 
 
 1.    `git clone https://github.com/superkabuki/FFmpeg_SCTE35.git`
@@ -33,11 +35,11 @@
       
   
 
-5.    `make all` 
+4.    `make all` 
 
-     On OpenBSD use `gmake` instead of `make`.
+  On OpenBSD use `gmake` instead of `make`.
 
-6.    `sudo make install` 
+5.    `sudo make install` 
 
 
 

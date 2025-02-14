@@ -10,6 +10,9 @@
 
 * The patch  allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.
+
+*  That's all the patch does, and that's all it's going to do, it will not be expanded.
+
 * Everything else works just like unpatched ffmpeg.
 
 

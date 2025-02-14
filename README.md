@@ -35,7 +35,7 @@
 
 5.    `make all` 
 
-    a. On OpenBSD use `gmake` instead of `make`.
+     On OpenBSD use `gmake` instead of `make`.
 
 6.    `sudo make install` 
 

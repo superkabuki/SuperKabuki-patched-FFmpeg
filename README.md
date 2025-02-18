@@ -1,4 +1,3 @@
-![image](https://github.com/user-attachments/assets/1d17063c-a4fc-42c6-8749-d9c9c5211775)
 
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 
@@ -9,14 +8,12 @@
 ##  __The SuperKabuki patch stops that from happening.__
 
 
-
 * The patch  allows you copy a SCTE-35 stream over as SCTE-35, when you're encoding with ffmpeg.
 * The patch also adds the SCTE-35 Descriptor __(CUEI / 0x49455543)__ , just to be fancy.
-
-*  That's all the patch does, and that's all it's going to do, it will not be expanded.
-
+* The patch adds only seven lines of code to two files, libavformat/mpegts.c and libavformat/mpegtsenc.c.
 * Everything else works just like unpatched ffmpeg.
 
+![image](https://github.com/user-attachments/assets/1d17063c-a4fc-42c6-8749-d9c9c5211775)
 
 ---
 

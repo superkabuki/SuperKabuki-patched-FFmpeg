@@ -444,9 +444,9 @@ static int get_dvb_stream_type(AVFormatContext *s, AVStream *st)
         }
         break;
     case AV_CODEC_ID_SCTE_35:
-    		stream_type = STREAM_TYPE_SCTE_DATA_SCTE_35;
-                st->codecpar->codec_type = AVMEDIA_TYPE_DATA;
-    		break;
+    	stream_type = STREAM_TYPE_SCTE_DATA_SCTE_35;
+        st->codecpar->codec_type = AVMEDIA_TYPE_DATA;
+    	break;
     default:
         av_log_once(s, AV_LOG_WARNING, AV_LOG_DEBUG, &ts_st->data_st_warning,
                     "Stream %d, codec %s, is muxed as a private data stream "

@@ -1,6 +1,5 @@
 
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
-
 ## Ever get this message when transcoding a SCTE-35 stream?
 
 ![412188557-af4e4bba-3612-4709-9660-48e485b2df9e](https://github.com/user-attachments/assets/a0f8ab8a-2e0d-4229-b867-a093bdf4f0c4)
@@ -13,7 +12,8 @@
 * The patch adds only seven lines of code to two files, libavformat/mpegts.c and libavformat/mpegtsenc.c.
 * Everything else works just like unpatched ffmpeg.
 
-![image](https://github.com/user-attachments/assets/1d17063c-a4fc-42c6-8749-d9c9c5211775)
+
+
 
 ---
 

@@ -1,4 +1,4 @@
-
+> Sorry, I just noticed my images have disappeared, I'll make new ones really quick.
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 ## Ever get this message when transcoding a SCTE-35 stream?
 

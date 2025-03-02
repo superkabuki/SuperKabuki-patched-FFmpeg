@@ -1,4 +1,3 @@
-> Sorry, I just noticed my images have disappeared, I'll make new ones really quick.
 # FFmpeg with the SuperKabuki SCTE-35 patch applied.
 ## Ever get this message when transcoding a SCTE-35 stream?
 
@@ -56,24 +55,25 @@ Use it just like unpatched FFmpeg.
 
 ### 1.  Re-encode video to h.265, audio to aac, copy over the SCTE-35, and keep the timestamps.
 
-
+* I build my ffmpeg with libx265 enabled. `--enable-libx265 --enable-nonfree`
 ```smalltalk
-ffmpeg -copyts -i input.ts -map 0  -c:v h265 -c:a aac -c:d copy -muxpreload 0 -muxdelay 0 output.ts
+ffmpeg -copyts -i input.ts -map 0  -c:v libx265 -c:a aac -c:d copy -muxpreload 0 -muxdelay 0 output.ts
 ```
 
 
 
 * original file
+
+![image](https://github.com/user-attachments/assets/058c33f7-ff81-4fac-b2cb-bd256cfa2862)
   
-![image](https://github.com/user-attachments/assets/b8816336-37a8-439e-87a1-d904f2815d7c)
 
 * ffmpeg command
 
-![image](https://github.com/user-attachments/assets/3c0190b0-479e-40ce-9c2e-9168919489a8)
+![image](https://github.com/user-attachments/assets/6eabe8e5-acde-43c3-a658-dfa748330eb4)
 
 * new file
 
-![image](https://github.com/user-attachments/assets/2b76b386-814f-431b-a07a-a6eaa7001a12)
+![image](https://github.com/user-attachments/assets/4e56b2bd-a074-46ab-b5fc-b34341926b41)
 
 ---
 
@@ -87,15 +87,16 @@ ffmpeg -copyts -ss 200 -i input.ts -map 0  -c copy -muxpreload 0 -muxdelay 0 out
 
 * original file
   
-![image](https://github.com/user-attachments/assets/30d88882-0814-4609-92fc-53ef29e77bae)
+ ![image](https://github.com/user-attachments/assets/058c33f7-ff81-4fac-b2cb-bd256cfa2862)
+ 
 
 * ffmpeg command
   
- ![image](https://github.com/user-attachments/assets/21b1b49a-c9a2-4e8b-8322-2b4f5755a51e)
+![image](https://github.com/user-attachments/assets/049d8711-2c2a-4b4d-b1c6-3f03f1f35f3a)
 
 * new file
   
-![image](https://github.com/user-attachments/assets/f2cf31c6-90a4-428c-97bd-4ca82823fc71)
+![image](https://github.com/user-attachments/assets/4e56b2bd-a074-46ab-b5fc-b34341926b41)
 
 
 > Notice the start time and duration have both changed by ~200 seconds.

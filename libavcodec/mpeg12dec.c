@@ -72,7 +72,6 @@ enum Mpeg2ClosedCaptionsFormat {
 
 typedef struct Mpeg1Context {
     MpegEncContext mpeg_enc_ctx;
-    int repeat_field;           /* true if we must repeat the field */
     AVPanScan pan_scan;         /* some temporary storage for the panscan */
     enum AVStereo3DType stereo3d_type;
     int has_stereo3d;
@@ -781,7 +780,6 @@ static av_cold int mpeg_decode_init(AVCodecContext *avctx)
     ff_mpeg12_init_vlcs();
 
     s2->chroma_format              = 1;
-    s->repeat_field                = 0;
     avctx->color_range             = AVCOL_RANGE_MPEG;
     return 0;
 }
@@ -1003,7 +1001,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         if ((ret = ff_mpv_common_init(s)) < 0)
             return ret;
         if (!s->avctx->lowres)
-            ff_mpv_framesize_disable(&s->sc);
+            for (int i = 0; i < s->slice_context_count; i++)
+                ff_mpv_framesize_disable(&s->thread_context[i]->sc);
     }
     return 0;
 }
@@ -1050,8 +1049,6 @@ static int mpeg1_decode_picture(AVCodecContext *avctx, const uint8_t *buf,
         av_log(avctx, AV_LOG_DEBUG,
                "vbv_delay %d, ref %d type:%d\n", vbv_delay, ref, s->pict_type);
 
-    s->y_dc_scale = 8;
-    s->c_dc_scale = 8;
     return 0;
 }
 
@@ -1232,10 +1229,10 @@ static int mpeg_decode_picture_coding_extension(Mpeg1Context *s1)
     s->chroma_420_type            = get_bits1(&s->gb);
     s->progressive_frame          = get_bits1(&s->gb);
 
-    // We only initialize intra_scantable, as both scantables always coincide
-    // and all code therefore only uses the intra one.
-    ff_init_scantable(s->idsp.idct_permutation, &s->intra_scantable,
-                      s->alternate_scan ? ff_alternate_vertical_scan : ff_zigzag_direct);
+    // We only initialize intra_scantable.permutated, as this is all we use.
+    ff_permute_scantable(s->intra_scantable.permutated,
+                         s->alternate_scan ? ff_alternate_vertical_scan : ff_zigzag_direct,
+                         s->idsp.idct_permutation);
 
     /* composite display not parsed */
     ff_dlog(s->avctx, "intra_dc_precision=%d\n", s->intra_dc_precision);
@@ -1658,11 +1655,11 @@ static int mpeg_decode_slice(MpegEncContext *s, int mb_y,
     }
 eos: // end of slice
     if (get_bits_left(&s->gb) < 0) {
-        av_log(s, AV_LOG_ERROR, "overread %d\n", -get_bits_left(&s->gb));
+        av_log(s->avctx, AV_LOG_ERROR, "overread %d\n", -get_bits_left(&s->gb));
         return AVERROR_INVALIDDATA;
     }
     *buf += (get_bits_count(&s->gb) - 1) / 8;
-    ff_dlog(s, "Slice start:%d %d  end:%d %d\n", s->resync_mb_x, s->resync_mb_y, s->mb_x, s->mb_y);
+    ff_dlog(s->avctx, "Slice start:%d %d  end:%d %d\n", s->resync_mb_x, s->resync_mb_y, s->mb_x, s->mb_y);
     return 0;
 }
 
@@ -1878,7 +1875,8 @@ static int vcr2_init_sequence(AVCodecContext *avctx)
     if ((ret = ff_mpv_common_init(s)) < 0)
         return ret;
     if (!s->avctx->lowres)
-        ff_mpv_framesize_disable(&s->sc);
+        for (int i = 0; i < s->slice_context_count; i++)
+            ff_mpv_framesize_disable(&s->thread_context[i]->sc);
 
     for (i = 0; i < 64; i++) {
         int j = s->idsp.idct_permutation[i];
@@ -2807,8 +2805,9 @@ static int ipu_decode_frame(AVCodecContext *avctx, AVFrame *frame,
     m->intra_vlc_format = !!(s->flags & 0x20);
     m->alternate_scan = !!(s->flags & 0x10);
 
-    ff_init_scantable(m->idsp.idct_permutation, &m->intra_scantable,
-                      s->flags & 0x10 ? ff_alternate_vertical_scan : ff_zigzag_direct);
+    ff_permute_scantable(m->intra_scantable.permutated,
+                         s->flags & 0x10 ? ff_alternate_vertical_scan : ff_zigzag_direct,
+                         m->idsp.idct_permutation);
 
     m->last_dc[0] = m->last_dc[1] = m->last_dc[2] = 1 << (7 + (s->flags & 3));
     m->qscale = 1;

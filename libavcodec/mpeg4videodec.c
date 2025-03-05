@@ -3463,8 +3463,8 @@ static int decode_studiovisualobject(Mpeg4DecContext *ctx, GetBitContext *gb)
  *         FRAME_SKIPPED if a not coded VOP is found
  *         0 else
  */
-int ff_mpeg4_decode_picture_header(Mpeg4DecContext *ctx, GetBitContext *gb,
-                                   int header, int parse_only)
+int ff_mpeg4_parse_picture_header(Mpeg4DecContext *ctx, GetBitContext *gb,
+                                  int header, int parse_only)
 {
     MpegEncContext *s = &ctx->m;
     unsigned startcode, v;
@@ -3621,17 +3621,53 @@ end:
         return decode_vop_header(ctx, gb, parse_only);
 }
 
-int ff_mpeg4_frame_end(AVCodecContext *avctx, const uint8_t *buf, int buf_size)
+int ff_mpeg4_decode_picture_header(MpegEncContext *s)
+{
+    Mpeg4DecContext *const ctx = (Mpeg4DecContext*)s;
+
+    if (ctx->bitstream_buffer) {
+        int buf_size = get_bits_left(&s->gb) / 8U;
+        int bitstream_buffer_size = ctx->bitstream_buffer->size;
+        const uint8_t *buf = s->gb.buffer;
+
+        if (s->divx_packed) {
+            for (int i = 0; i < buf_size - 3; i++) {
+                if (buf[i] == 0 && buf[i+1] == 0 && buf[i+2] == 1) {
+                    if (buf[i+3] == 0xB0) {
+                        av_log(s->avctx, AV_LOG_WARNING, "Discarding excessive bitstream in packed xvid\n");
+                        bitstream_buffer_size = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        ctx->bitstream_buffer->size = 0;
+        if (bitstream_buffer_size && (s->divx_packed || buf_size <= MAX_NVOP_SIZE)) {// divx 5.01+/xvid frame reorder
+            int ret = init_get_bits8(&s->gb, ctx->bitstream_buffer->data,
+                                     bitstream_buffer_size);
+            if (ret < 0)
+                return ret;
+        } else
+            av_buffer_unref(&ctx->bitstream_buffer);
+    }
+
+    return ff_mpeg4_parse_picture_header(ctx, &s->gb, 0, 0);
+}
+
+int ff_mpeg4_frame_end(AVCodecContext *avctx, const AVPacket *pkt)
 {
     Mpeg4DecContext *ctx = avctx->priv_data;
     MpegEncContext    *s = &ctx->m;
+    int ret;
+
+    av_assert1(!ctx->bitstream_buffer || !ctx->bitstream_buffer->size);
 
     /* divx 5.01+ bitstream reorder stuff */
-    /* Since this clobbers the input buffer and hwaccel codecs still need the
-     * data during hwaccel->end_frame we should not do this any earlier */
     if (s->divx_packed) {
-        int current_pos     = s->gb.buffer == s->bitstream_buffer ? 0 : (get_bits_count(&s->gb) >> 3);
+        int current_pos     = ctx->bitstream_buffer && s->gb.buffer == ctx->bitstream_buffer->data ? 0 : (get_bits_count(&s->gb) >> 3);
         int startcode_found = 0;
+        uint8_t *buf = pkt->data;
+        int buf_size = pkt->size;
 
         if (buf_size - current_pos > 7) {
 
@@ -3654,16 +3690,12 @@ int ff_mpeg4_frame_end(AVCodecContext *avctx, const uint8_t *buf, int buf_size)
                        "Consider using the mpeg4_unpack_bframes bitstream filter without encoding but stream copy to fix it.\n");
                 ctx->showed_packed_warning = 1;
             }
-            av_fast_padded_malloc(&s->bitstream_buffer,
-                           &s->allocated_bitstream_buffer_size,
-                           buf_size - current_pos);
-            if (!s->bitstream_buffer) {
-                s->bitstream_buffer_size = 0;
-                return AVERROR(ENOMEM);
-            }
-            memcpy(s->bitstream_buffer, buf + current_pos,
-                   buf_size - current_pos);
-            s->bitstream_buffer_size = buf_size - current_pos;
+            ret = av_buffer_replace(&ctx->bitstream_buffer, pkt->buf);
+            if (ret < 0)
+                return ret;
+
+            ctx->bitstream_buffer->data = buf + current_pos;
+            ctx->bitstream_buffer->size = buf_size - current_pos;
         }
     }
 
@@ -3699,6 +3731,7 @@ static int mpeg4_update_thread_context(AVCodecContext *dst,
     s->enhancement_type          = s1->enhancement_type;
     s->scalability               = s1->scalability;
     s->intra_dc_threshold        = s1->intra_dc_threshold;
+    s->m.divx_packed             = s1->m.divx_packed;
     s->divx_version              = s1->divx_version;
     s->divx_build                = s1->divx_build;
     s->xvid_build                = s1->xvid_build;
@@ -3713,6 +3746,8 @@ static int mpeg4_update_thread_context(AVCodecContext *dst,
 
     memcpy(s->sprite_shift, s1->sprite_shift, sizeof(s1->sprite_shift));
     memcpy(s->sprite_traj,  s1->sprite_traj,  sizeof(s1->sprite_traj));
+
+    ret = av_buffer_replace(&s->bitstream_buffer, s1->bitstream_buffer);
 
     if (!init && s1->xvid_build >= 0)
         ff_xvid_idct_init(&s->m.idsp, dst);
@@ -3811,10 +3846,27 @@ static av_cold int decode_init(AVCodecContext *avctx)
         GetBitContext gb;
 
         if (init_get_bits8(&gb, avctx->extradata, avctx->extradata_size) >= 0)
-            ff_mpeg4_decode_picture_header(ctx, &gb, 1, 0);
+            ff_mpeg4_parse_picture_header(ctx, &gb, 1, 0);
     }
 
     return 0;
+}
+
+static av_cold void mpeg4_flush(AVCodecContext *avctx)
+{
+    Mpeg4DecContext *const ctx = avctx->priv_data;
+
+    av_buffer_unref(&ctx->bitstream_buffer);
+    ff_mpeg_flush(avctx);
+}
+
+static av_cold int mpeg4_close(AVCodecContext *avctx)
+{
+    Mpeg4DecContext *const ctx = avctx->priv_data;
+
+    av_buffer_unref(&ctx->bitstream_buffer);
+
+    return ff_mpv_decode_close(avctx);
 }
 
 #define OFFSET(x) offsetof(MpegEncContext, x)
@@ -3840,12 +3892,12 @@ const FFCodec ff_mpeg4_decoder = {
     .priv_data_size        = sizeof(Mpeg4DecContext),
     .init                  = decode_init,
     FF_CODEC_DECODE_CB(ff_h263_decode_frame),
-    .close                 = ff_mpv_decode_close,
+    .close                 = mpeg4_close,
     .p.capabilities        = AV_CODEC_CAP_DRAW_HORIZ_BAND | AV_CODEC_CAP_DR1 |
                              AV_CODEC_CAP_DELAY | AV_CODEC_CAP_FRAME_THREADS,
     .caps_internal         = FF_CODEC_CAP_INIT_CLEANUP |
                              FF_CODEC_CAP_SKIP_FRAME_FILL_PARAM,
-    .flush                 = ff_mpeg_flush,
+    .flush                 = mpeg4_flush,
     .p.max_lowres          = 3,
     .p.profiles            = NULL_IF_CONFIG_SMALL(ff_mpeg4_video_profiles),
     UPDATE_THREAD_CONTEXT(mpeg4_update_thread_context),

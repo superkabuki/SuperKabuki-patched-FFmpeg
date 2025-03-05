@@ -395,9 +395,6 @@ typedef struct MpegEncContext {
 
     /* divx specific, used to workaround (many) bugs in divx5 */
     int divx_packed;
-    uint8_t *bitstream_buffer; //Divx 5.01 puts several frames in a single one, this is used to reorder them
-    int bitstream_buffer_size;
-    unsigned int allocated_bitstream_buffer_size;
 
     /* RV10 specific */
     int rv10_version; ///< RV10 version: 0 or 3
@@ -564,7 +561,6 @@ void ff_mpv_common_defaults(MpegEncContext *s);
 
 int ff_mpv_common_init(MpegEncContext *s);
 void ff_mpv_common_init_arm(MpegEncContext *s);
-void ff_mpv_common_init_axp(MpegEncContext *s);
 void ff_mpv_common_init_neon(MpegEncContext *s);
 void ff_mpv_common_init_ppc(MpegEncContext *s);
 void ff_mpv_common_init_x86(MpegEncContext *s);

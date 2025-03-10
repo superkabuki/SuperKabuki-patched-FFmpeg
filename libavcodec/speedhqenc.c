@@ -100,13 +100,13 @@ av_cold int ff_speedhq_encode_init(MpegEncContext *s)
     static AVOnce init_static_once = AV_ONCE_INIT;
 
     if (s->width > 65500 || s->height > 65500) {
-        av_log(s, AV_LOG_ERROR, "SpeedHQ does not support resolutions above 65500x65500\n");
+        av_log(s->avctx, AV_LOG_ERROR, "SpeedHQ does not support resolutions above 65500x65500\n");
         return AVERROR(EINVAL);
     }
 
     // border is not implemented correctly at the moment, see ticket #10078
     if (s->width % 16) {
-        av_log(s, AV_LOG_ERROR, "width must be a multiple of 16\n");
+        av_log(s->avctx, AV_LOG_ERROR, "width must be a multiple of 16\n");
         return AVERROR_PATCHWELCOME;
     }
 
@@ -272,22 +272,6 @@ void ff_speedhq_encode_mb(MpegEncContext *s, int16_t block[12][64])
     s->i_tex_bits += get_bits_diff(s);
 }
 
-static int ff_speedhq_mb_rows_in_slice(int slice_num, int mb_height)
-{
-    return mb_height / 4 + (slice_num < (mb_height % 4));
-}
-
-int ff_speedhq_mb_y_order_to_mb(int mb_y_order, int mb_height, int *first_in_slice)
-{
-    int slice_num = 0;
-    while (mb_y_order >= ff_speedhq_mb_rows_in_slice(slice_num, mb_height)) {
-         mb_y_order -= ff_speedhq_mb_rows_in_slice(slice_num, mb_height);
-         slice_num++;
-    }
-    *first_in_slice = (mb_y_order == 0);
-    return mb_y_order * 4 + slice_num;
-}
-
 const FFCodec ff_speedhq_encoder = {
     .p.name         = "speedhq",
     CODEC_LONG_NAME("NewTek SpeedHQ"),
@@ -301,8 +285,5 @@ const FFCodec ff_speedhq_encoder = {
     .close          = ff_mpv_encode_end,
     .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
     .color_ranges   = AVCOL_RANGE_MPEG,
-    .p.pix_fmts     = (const enum AVPixelFormat[]) {
-        AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV422P, AV_PIX_FMT_YUV444P,
-        AV_PIX_FMT_NONE
-    },
+    CODEC_PIXFMTS(AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV422P, AV_PIX_FMT_YUV444P),
 };

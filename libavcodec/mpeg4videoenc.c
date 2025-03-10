@@ -37,6 +37,11 @@
 #include "profiles.h"
 #include "version.h"
 
+/**
+ * Minimal fcode that a motion vector component would need.
+ */
+static uint8_t fcode_tab[MAX_MV*2+1];
+
 /* The uni_DCtab_* tables below contain unified bits+length tables to encode DC
  * differences in MPEG-4. Unified in the sense that the specification specifies
  * this encoding in several steps. */
@@ -801,8 +806,14 @@ void ff_mpeg4_encode_mb(MpegEncContext *s, int16_t block[6][64],
         const uint8_t *scan_table[6];
         int i;
 
-        for (i = 0; i < 6; i++)
-            dc_diff[i] = ff_mpeg4_pred_dc(s, i, block[i][0], &dir[i], 1);
+        for (int i = 0; i < 6; i++) {
+            int pred  = ff_mpeg4_pred_dc(s, i, &dir[i]);
+            int scale = i < 4 ? s->y_dc_scale : s->c_dc_scale;
+
+            pred = FASTDIV((pred + (scale >> 1)), scale);
+            dc_diff[i] = block[i][0] - pred;
+            s->dc_val[0][s->block_index[i]] = av_clip_uintp2(block[i][0] * scale, 11);
+        }
 
         if (s->avctx->flags & AV_CODEC_FLAG_AC_PRED) {
             s->ac_pred = decide_ac_pred(s, block, dir, scan_table, zigzag_last_index);
@@ -1255,6 +1266,11 @@ static av_cold void mpeg4_encode_init_static(void)
 
     init_uni_mpeg4_rl_tab(&ff_mpeg4_rl_intra, uni_mpeg4_intra_rl_bits, uni_mpeg4_intra_rl_len);
     init_uni_mpeg4_rl_tab(&ff_h263_rl_inter,  uni_mpeg4_inter_rl_bits, uni_mpeg4_inter_rl_len);
+
+    for (int f_code = MAX_FCODE; f_code > 0; f_code--) {
+        for (int mv = -(16 << f_code); mv < (16 << f_code); mv++)
+            fcode_tab[mv + MAX_MV] = f_code;
+    }
 }
 
 static av_cold int encode_init(AVCodecContext *avctx)
@@ -1274,6 +1290,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
 
     ff_thread_once(&init_static_once, mpeg4_encode_init_static);
 
+    s->fcode_tab                = fcode_tab + MAX_MV;
     s->min_qcoeff               = -2048;
     s->max_qcoeff               = 2047;
     s->intra_ac_vlc_length      = uni_mpeg4_intra_rl_len;
@@ -1382,7 +1399,7 @@ const FFCodec ff_mpeg4_encoder = {
     .init           = encode_init,
     FF_CODEC_ENCODE_CB(ff_mpv_encode_picture),
     .close          = ff_mpv_encode_end,
-    .p.pix_fmts     = (const enum AVPixelFormat[]) { AV_PIX_FMT_YUV420P, AV_PIX_FMT_NONE },
+    CODEC_PIXFMTS(AV_PIX_FMT_YUV420P),
     .color_ranges   = AVCOL_RANGE_MPEG,
     .p.capabilities = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_DELAY |
                       AV_CODEC_CAP_SLICE_THREADS |
